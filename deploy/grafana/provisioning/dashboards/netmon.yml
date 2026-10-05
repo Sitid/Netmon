@@ -1,0 +1,14 @@
+# Proveedor de tableros de netmon/SOC: los .json de /var/lib/grafana/dashboards
+# se cargan solos (versionados en el repo netmon, deploy/grafana/dashboards/).
+apiVersion: 1
+providers:
+  - name: netmon-soc
+    orgId: 1
+    folder: SOC
+    type: file
+    disableDeletion: false
+    allowUiUpdates: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

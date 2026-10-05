@@ -1,0 +1,23 @@
+# Prepara la interfaz de captura conectada al puerto SPAN:
+#  - la levanta sin IP y en modo promiscuo
+#  - desactiva offloads (GRO/LRO/TSO/GSO) para que ntopng vea los paquetes
+#    tal como viajan por el cable, y el offload de VLAN para conservar los
+#    tags 802.1Q del trunk espejado
+#  - sube el MTU: los frames de un trunk pueden superar los 1518 bytes
+# La interfaz se define en /etc/netmon/netmon.env (NETMON_CAPTURE_IFACE).
+[Unit]
+Description=netmon - preparación de interfaz de captura (SPAN)
+Before=ntopng.service
+Wants=network-pre.target
+After=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/netmon/netmon.env
+ExecStart=/usr/sbin/ip link set dev ${NETMON_CAPTURE_IFACE} up promisc on mtu 1600
+ExecStart=-/usr/sbin/ethtool -K ${NETMON_CAPTURE_IFACE} gro off lro off tso off gso off rx-vlan-offload off tx-vlan-offload off
+ExecStop=/usr/sbin/ip link set dev ${NETMON_CAPTURE_IFACE} promisc off
+
+[Install]
+WantedBy=multi-user.target

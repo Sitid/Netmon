@@ -1,0 +1,7 @@
+# netmon — protocolos nDPI personalizados (formato nDPI: <l4>:<puerto>...@Nombre)
+# Cámaras/grabadores Hikvision: protocolo propietario (SDK/ISAPI/stream) que nDPI
+# no reconoce y caía como "Unknown". Puertos observados en esta red.
+tcp:8000,tcp:8001,tcp:8002,tcp:8004,tcp:8005,tcp:8006,tcp:9020@Hikvision
+# YouTube Music: solo el canal de control (music.youtube.com). El audio va por
+# googlevideo.com y es indistinguible del video de YouTube.
+host:"music.youtube.com"@YouTubeMusic

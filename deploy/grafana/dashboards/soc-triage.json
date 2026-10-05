@@ -1,0 +1,1848 @@
+{
+  "uid": "soc-triage",
+  "title": "SOC — Triage de alertas",
+  "tags": [
+    "soc",
+    "wazuh",
+    "netmon"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "severidad",
+        "label": "Severidad",
+        "type": "custom",
+        "query": "Accionables (≥5) : rule.level:>=5, Medias (5-7) : rule.level:[5 TO 7], Altas (8-11) : rule.level:[8 TO 11], Críticas (≥12) : rule.level:>=12, Todas (con ruido) : rule.level:>=0",
+        "current": {
+          "text": "Accionables (≥5)",
+          "value": "rule.level:>=5"
+        },
+        "options": [
+          {
+            "text": "Accionables (≥5)",
+            "value": "rule.level:>=5",
+            "selected": true
+          },
+          {
+            "text": "Medias (5-7)",
+            "value": "rule.level:[5 TO 7]",
+            "selected": false
+          },
+          {
+            "text": "Altas (8-11)",
+            "value": "rule.level:[8 TO 11]",
+            "selected": false
+          },
+          {
+            "text": "Críticas (≥12)",
+            "value": "rule.level:>=12",
+            "selected": false
+          },
+          {
+            "text": "Todas (con ruido)",
+            "value": "rule.level:>=0",
+            "selected": false
+          }
+        ],
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "agente",
+        "label": "Agente",
+        "type": "custom",
+        "query": "dc01, wazuh.manager",
+        "includeAll": true,
+        "multi": true,
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": [
+          {
+            "text": "dc01",
+            "value": "dc01",
+            "selected": false
+          },
+          {
+            "text": "wazuh.manager",
+            "value": "wazuh.manager",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "evento_ad",
+        "label": "Evento AD",
+        "type": "custom",
+        "query": "Todos : *, Login fallido (4625) : data.win.system.eventID:4625, Bloqueo (4740) : data.win.system.eventID:4740, Kerberos (4771) : data.win.system.eventID:4771, Cambios grupos admin : data.win.system.eventID:(4728 OR 4732 OR 4756 OR 4729 OR 4733 OR 4757)",
+        "current": {
+          "text": "Todos",
+          "value": "*"
+        },
+        "options": [
+          {
+            "text": "Todos",
+            "value": "*",
+            "selected": true
+          },
+          {
+            "text": "Login fallido (4625)",
+            "value": "data.win.system.eventID:4625",
+            "selected": false
+          },
+          {
+            "text": "Bloqueo (4740)",
+            "value": "data.win.system.eventID:4740",
+            "selected": false
+          },
+          {
+            "text": "Kerberos (4771)",
+            "value": "data.win.system.eventID:4771",
+            "selected": false
+          },
+          {
+            "text": "Cambios grupos admin",
+            "value": "data.win.system.eventID:(4728 OR 4732 OR 4756 OR 4729 OR 4733 OR 4757)",
+            "selected": false
+          }
+        ],
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Críticas (nivel ≥12)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 1,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "rule.level:>=12 AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estas alertas (filtrar por severidad)",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${evento_ad:queryparam}&var-severidad=rule.level%3A%3E%3D12",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Altas (nivel 8–11)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "rule.level:[8 TO 11] AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estas alertas (filtrar por severidad)",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${evento_ad:queryparam}&var-severidad=rule.level%3A%5B8%20TO%2011%5D",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Medias (nivel 5–7)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "rule.level:[5 TO 7] AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estas alertas (filtrar por severidad)",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${evento_ad:queryparam}&var-severidad=rule.level%3A%5B5%20TO%207%5D",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Accionables (≥5)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "query": "rule.level:>=5 AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estas alertas (filtrar por severidad)",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${evento_ad:queryparam}&var-severidad=rule.level%3A%3E%3D5",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Alertas por nivel en el tiempo",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "query": "${severidad:raw} AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "rule.level",
+              "id": "3",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "8"
+              }
+            },
+            {
+              "field": "@timestamp",
+              "id": "4",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "stacking": {
+              "mode": "normal"
+            },
+            "fillOpacity": 80,
+            "lineWidth": 0
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Últimas alertas (más nuevas arriba)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "query": "${severidad:raw} AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "raw_data",
+              "settings": {
+                "size": "100"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Nivel"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 5
+                    },
+                    {
+                      "color": "orange",
+                      "value": 8
+                    },
+                    {
+                      "color": "red",
+                      "value": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 64
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hora"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Agente"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Origen"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Destino"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Puerto"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Regla"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto",
+                  "wrapText": true
+                }
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 380
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "@timestamp",
+                "rule.level",
+                "agent.name",
+                "rule.description",
+                "data.src_ip",
+                "data.dest_ip",
+                "data.dest_port"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "@timestamp": 0,
+              "rule.level": 1,
+              "agent.name": 2,
+              "rule.description": 3,
+              "data.src_ip": 4,
+              "data.dest_ip": 5,
+              "data.dest_port": 6
+            },
+            "renameByName": {
+              "@timestamp": "Hora",
+              "rule.level": "Nivel",
+              "agent.name": "Agente",
+              "rule.description": "Regla",
+              "data.src_ip": "Origen",
+              "data.dest_ip": "Destino",
+              "data.dest_port": "Puerto"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Top reglas",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "targets": [
+        {
+          "query": "${severidad:raw} AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "rule.description",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rule.description"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto",
+                  "wrapText": true
+                }
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 280
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Top grupos (tipo de amenaza)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "targets": [
+        {
+          "query": "${severidad:raw} AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "rule.groups",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "12"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Top IP externas (origen) — tráfico de red",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 9,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      },
+      "targets": [
+        {
+          "query": "NOT (data.src_ip:10.* OR data.src_ip:192.168.* OR data.src_ip:172.16.* OR data.src_ip:172.17.* OR data.src_ip:172.18.* OR data.src_ip:172.19.* OR data.src_ip:172.20.* OR data.src_ip:172.21.* OR data.src_ip:172.22.* OR data.src_ip:172.23.* OR data.src_ip:172.24.* OR data.src_ip:172.25.* OR data.src_ip:172.26.* OR data.src_ip:172.27.* OR data.src_ip:172.28.* OR data.src_ip:172.29.* OR data.src_ip:172.30.* OR data.src_ip:172.31.*) AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "data.src_ip",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "type": "table",
+      "title": "Top equipos internos (destino) — tráfico de red",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "targets": [
+        {
+          "query": "(data.dest_ip:10.* OR data.dest_ip:192.168.* OR data.dest_ip:172.16.* OR data.dest_ip:172.17.* OR data.dest_ip:172.18.* OR data.dest_ip:172.19.* OR data.dest_ip:172.20.* OR data.dest_ip:172.21.* OR data.dest_ip:172.22.* OR data.dest_ip:172.23.* OR data.dest_ip:172.24.* OR data.dest_ip:172.25.* OR data.dest_ip:172.26.* OR data.dest_ip:172.27.* OR data.dest_ip:172.28.* OR data.dest_ip:172.29.* OR data.dest_ip:172.30.* OR data.dest_ip:172.31.*) AND agent.name:${agente:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "data.dest_ip",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Active Directory / Controlador de dominio",
+      "id": 20,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Logins fallidos (4625)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 21,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 40
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:4625",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estos eventos en la lista de AD",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${severidad:queryparam}&var-evento_ad=data.win.system.eventID%3A4625",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Bloqueos de cuenta (4740)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 22,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 40
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:4740",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estos eventos en la lista de AD",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${severidad:queryparam}&var-evento_ad=data.win.system.eventID%3A4740",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Kerberos pre-auth fallida (4771)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 23,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 40
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:4771",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estos eventos en la lista de AD",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${severidad:queryparam}&var-evento_ad=data.win.system.eventID%3A4771",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Cambios en grupos admin",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 24,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 40
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:(4728 OR 4732 OR 4756 OR 4729 OR 4733 OR 4757)",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "type": "date_histogram",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          },
+          "unit": "short",
+          "decimals": 0,
+          "links": [
+            {
+              "title": "Ver estos eventos en la lista de AD",
+              "url": "/d/soc-triage/soc-triage?${__url_time_range}&${agente:queryparam}&${severidad:queryparam}&var-evento_ad=data.win.system.eventID%3A%284728%20OR%204732%20OR%204756%20OR%204729%20OR%204733%20OR%204757%29",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "center",
+        "wideLayout": true
+      }
+    },
+    {
+      "type": "table",
+      "title": "Usuarios con más fallos de login",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 25,
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 44
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:(4625 OR 4771)",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "data.win.eventdata.targetUserName",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eventos"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "data.win.eventdata.targetUserName": "Usuario",
+              "Count": "Eventos"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "IP origen de fallos de login",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 26,
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 44
+      },
+      "targets": [
+        {
+          "query": "data.win.system.eventID:(4625 OR 4771)",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "data.win.eventdata.ipAddress",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eventos"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "data.win.eventdata.ipAddress": "IP origen",
+              "Count": "Eventos"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Eventos de seguridad por tipo (EventID)",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 27,
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 44
+      },
+      "targets": [
+        {
+          "query": "rule.groups:windows",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "bucketAggs": [
+            {
+              "field": "data.win.system.eventID",
+              "id": "2",
+              "type": "terms",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "20"
+              }
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eventos"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "data.win.system.eventID": "EventID",
+              "Count": "Eventos"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Últimos eventos de AD (Security) — clickeá un cuadro de arriba para filtrar",
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "PCE9BE10AEFA73E90"
+      },
+      "id": 28,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 53
+      },
+      "targets": [
+        {
+          "query": "rule.groups:windows AND ${evento_ad:raw}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "@timestamp",
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "PCE9BE10AEFA73E90"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "raw_data",
+              "settings": {
+                "size": "100"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "filterable": true,
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Nivel"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 5
+                    },
+                    {
+                      "color": "orange",
+                      "value": 8
+                    },
+                    {
+                      "color": "red",
+                      "value": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 64
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hora"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EventID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usuario"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "IP origen"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Descripción"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto",
+                  "wrapText": true
+                }
+              },
+              {
+                "id": "custom.minWidth",
+                "value": 360
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "@timestamp",
+                "rule.level",
+                "data.win.system.eventID",
+                "data.win.eventdata.targetUserName",
+                "data.win.eventdata.ipAddress",
+                "rule.description"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "@timestamp": 0,
+              "rule.level": 1,
+              "data.win.system.eventID": 2,
+              "data.win.eventdata.targetUserName": 3,
+              "data.win.eventdata.ipAddress": 4,
+              "rule.description": 5
+            },
+            "renameByName": {
+              "@timestamp": "Hora",
+              "rule.level": "Nivel",
+              "data.win.system.eventID": "EventID",
+              "data.win.eventdata.targetUserName": "Usuario",
+              "data.win.eventdata.ipAddress": "IP origen",
+              "rule.description": "Descripción"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

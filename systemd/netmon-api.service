@@ -1,0 +1,24 @@
+[Unit]
+Description=netmon - API web y dashboard (FastAPI + WebSockets)
+After=network-online.target postgresql.service ntopng.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=netmon
+Group=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+# 1 solo worker: el broadcast de WebSockets vive en el proceso
+ExecStart=/opt/netmon/venv/bin/uvicorn netmon.api:app --host ${NETMON_LISTEN_HOST} --port ${NETMON_LISTEN_PORT} --workers 1
+Restart=always
+RestartSec=5
+# Endurecimiento básico
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/netmon/reports
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

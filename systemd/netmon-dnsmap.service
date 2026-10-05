@@ -1,0 +1,15 @@
+[Unit]
+Description=netmon - mapa DNS pasivo (respuestas DNS de Suricata -> nombres de sitio)
+After=network-online.target postgresql.service suricata.service
+
+[Service]
+User=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+ExecStart=/opt/netmon/venv/bin/python -m netmon.dnsmap
+Restart=always
+RestartSec=10
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

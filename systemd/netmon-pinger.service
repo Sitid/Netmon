@@ -1,0 +1,25 @@
+[Unit]
+Description=netmon - monitor de latencia y estado de enlaces
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=netmon
+Group=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+ExecStart=/opt/netmon/venv/bin/python -m netmon.pinger
+Restart=always
+RestartSec=5
+# ICMP: el instalador setea net.ipv4.ping_group_range (modo no privilegiado).
+# CAP_NET_RAW queda como respaldo por si ese sysctl se revierte.
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0b0d">
+<title>netmon — Monitoreo de red</title>
+<link rel="stylesheet" href="/static/style.css?v=20260929u">
+</head>
+<body>
+
+<!-- ===== Íconos (trazo 1.75, 24x24) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24"><polyline points="3 12 7 12 10 5 14 19 17 12 21 12"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></symbol>
+  <symbol id="i-arrows" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 19.5c.9-3.1 3.4-4.8 6.5-4.8s5.6 1.7 6.5 4.8"/><path d="M16 5.2a3.5 3.5 0 0 1 0 6.6M18 14.9c1.8.6 3 2.1 3.5 4.6"/></symbol>
+  <symbol id="i-devices" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="14" height="10" rx="1.5"/><path d="M1.5 18h11"/><rect x="16.5" y="9" width="6" height="11" rx="1.5"/></symbol>
+  <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="1.5"/><rect x="3.5" y="13" width="17" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3 7.5h11v9H3zM14 10.5l7-3.5v10l-7-3.5"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 20a1.9 1.9 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16"/></symbol>
+  <symbol id="i-app" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M9 12h6M12 9v6"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10.5 10.5 0 0 1 14 0M8.5 15.5a5.5 5.5 0 0 1 7 0M12 19h.01"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></symbol>
+</svg>
+
+<div id="app">
+
+  <!-- ===== Barra lateral ===== -->
+  <aside id="sidebar">
+    <a class="brand" id="brand" href="#/resumen" title="Ir al inicio">
+      <span class="logo"><svg class="i"><use href="#i-logo"/></svg></span><span class="brand-name">netmon</span>
+    </a>
+    <nav id="nav">
+      <a href="#/resumen" data-route="resumen"><svg class="i"><use href="#i-home"/></svg><span class="lbl">Resumen</span><kbd>1</kbd></a>
+      <a href="#/estado" data-route="estado"><svg class="i"><use href="#i-pulse"/></svg><span class="lbl">Estado de red</span><kbd>2</kbd></a>
+      <div class="nav-group">Uso de la red</div>
+      <a href="#/consumo" data-route="consumo"><svg class="i"><use href="#i-chart"/></svg><span class="lbl">Consumo por equipo</span><kbd>3</kbd></a>
+      <a href="#/sitios" data-route="sitios"><svg class="i"><use href="#i-globe"/></svg><span class="lbl">Sitios</span><kbd>4</kbd></a>
+      <a href="#/conexiones" data-route="conexiones"><svg class="i"><use href="#i-arrows"/></svg><span class="lbl">Conexiones</span><kbd>5</kbd></a>
+      <a href="#/usuarios" data-route="usuarios"><svg class="i"><use href="#i-users"/></svg><span class="lbl">Usuarios</span><kbd>6</kbd></a>
+      <div class="nav-group">Inventario</div>
+      <a href="#/dispositivos" data-route="dispositivos"><svg class="i"><use href="#i-devices"/></svg><span class="lbl">Dispositivos</span><kbd>7</kbd></a>
+      <div class="nav-group">Administración</div>
+      <a href="#/reportes" data-route="reportes"><svg class="i"><use href="#i-doc"/></svg><span class="lbl">Reportes</span><kbd>8</kbd></a>
+      <a href="#/config" data-route="config"><svg class="i"><use href="#i-sliders"/></svg><span class="lbl">Configuración</span><kbd>9</kbd></a>
+    </nav>
+    <div class="side-foot">
+      <button id="collapse-btn" class="icon-btn" title="Contraer barra lateral (Esc)"><svg class="i"><use href="#i-sidebar"/></svg></button>
+    </div>
+  </aside>
+
+  <!-- ===== Columna principal ===== -->
+  <div id="main">
+    <header id="topbar">
+      <button id="menu-btn" class="icon-btn" title="Menú"><svg class="i"><use href="#i-menu"/></svg></button>
+      <button id="back-btn" class="icon-btn off" title="Volver"><svg class="i"><use href="#i-back"/></svg></button>
+      <nav class="crumbs" id="crumbs" aria-label="Ubicación"></nav>
+      <button class="search-trigger" id="search-btn" title="Buscar (/ o Ctrl+K)">
+        <svg class="i"><use href="#i-search"/></svg><span>Buscar IP, equipo, usuario, sitio…</span><kbd>Ctrl K</kbd>
+      </button>
+      <div class="top-right">
+        <span id="conn" class="conn ok"><span class="pulse"></span><span id="conn-text">en vivo</span></span>
+        <span id="clock" class="num">--:--:--</span>
+        <button id="bell-btn" class="icon-btn" title="Alertas"><svg class="i"><use href="#i-bell"/></svg><span id="bell-badge" class="badge hidden">0</span></button>
+        <button id="theme-btn" class="icon-btn" title="Tema"><svg class="i"><use href="#i-auto"/></svg></button>
+        <button id="login-btn" class="anon">Ingresar</button>
+      </div>
+    </header>
+
+    <div id="stale-banner" class="hidden">
+      Sin datos — <span id="stale-age">último dato: hace 0 s</span>
+    </div>
+
+    <main id="view" aria-live="polite"></main>
+  </div>
+</div>
+
+<!-- ===== Panel de alertas ===== -->
+<aside id="alert-drawer" class="hidden">
+  <div class="drawer-head">
+    <h2>Alertas</h2>
+    <label class="check"><input type="checkbox" id="alerts-open-only"> solo abiertas</label>
+    <button class="icon-btn" id="drawer-close" title="Cerrar"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <ul id="alert-list" class="alert-list"></ul>
+</aside>
+
+<!-- ===== Buscador ===== -->
+<div id="palette" class="hidden">
+  <div class="pal-box" role="dialog" aria-label="Buscar">
+    <div class="pal-input">
+      <svg class="i"><use href="#i-search"/></svg>
+      <input type="text" id="pal-q" placeholder="IP, equipo, usuario, MAC, app, sitio o sección" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="pal-results" id="pal-results"></div>
+    <div class="pal-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> moverse</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> cerrar</span></div>
+  </div>
+</div>
+
+<!-- ===== Tarjeta flotante de IP ===== -->
+<div id="hovercard" role="tooltip"></div>
+
+<!-- ===== Login ===== -->
+<dialog id="dlg-login">
+  <form id="form-login">
+    <div class="dlg-logo"><svg class="i"><use href="#i-logo"/></svg></div>
+    <h3>Ingresar a netmon</h3>
+    <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
+    <input type="password" id="login-pass" placeholder="Clave" autocomplete="current-password">
+    <p id="login-err" class="err hidden">Usuario o clave incorrectos</p>
+    <div class="dlg-actions">
+      <button type="button" onclick="this.closest('dialog').close()">Cancelar</button>
+      <button class="primary">Entrar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/static/vendor/chart.umd.min.js"></script>
+<script src="/static/js/core.js?v=20260929u"></script>
+<script src="/static/js/views.js?v=20260929u"></script>
+</body>
+</html>

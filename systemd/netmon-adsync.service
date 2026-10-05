@@ -1,0 +1,25 @@
+# Integración AD/Windows: PTR + leases DHCP + eventos Kerberos.
+# Habilitar solo después de configurar las variables NETMON_AD_* y
+# NETMON_INTERNAL_DNS_IP (ver docs/04-integracion-ad.md):
+#   systemctl enable --now netmon-adsync
+[Unit]
+Description=netmon - integración con Active Directory (PTR/DHCP/logons)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=netmon
+Group=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+ExecStart=/opt/netmon/venv/bin/python -m netmon.adsync
+Restart=always
+RestartSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

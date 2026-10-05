@@ -1,0 +1,21 @@
+[Unit]
+Description=netmon - colector de tráfico (ntopng -> PostgreSQL)
+After=network-online.target postgresql.service ntopng.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=netmon
+Group=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+ExecStart=/opt/netmon/venv/bin/python -m netmon.collector
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

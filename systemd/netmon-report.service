@@ -1,0 +1,10 @@
+[Unit]
+Description=netmon - generación de reporte semanal (CSV + PDF)
+
+[Service]
+Type=oneshot
+User=netmon
+Group=netmon
+EnvironmentFile=/etc/netmon/netmon.env
+WorkingDirectory=/opt/netmon
+ExecStart=/opt/netmon/venv/bin/python /opt/netmon/tools/make_report.py --range week --format both --outdir /opt/netmon/reports

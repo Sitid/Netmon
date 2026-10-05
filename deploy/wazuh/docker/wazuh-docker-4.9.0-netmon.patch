@@ -1,0 +1,49 @@
+diff --git a/single-node/config/wazuh_cluster/wazuh_manager.conf b/single-node/config/wazuh_cluster/wazuh_manager.conf
+index 64da4d81..83766e0b 100644
+--- a/single-node/config/wazuh_cluster/wazuh_manager.conf
++++ b/single-node/config/wazuh_cluster/wazuh_manager.conf
+@@ -274,7 +274,7 @@
+     <port>1515</port>
+     <use_source_ip>no</use_source_ip>
+     <purge>yes</purge>
+-    <use_password>no</use_password>
++    <use_password>yes</use_password>
+     <ciphers>HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH</ciphers>
+     <!-- <ssl_agent_ca></ssl_agent_ca> -->
+     <ssl_verify_host>no</ssl_verify_host>
+@@ -296,7 +296,6 @@
+     <hidden>no</hidden>
+     <disabled>yes</disabled>
+   </cluster>
+-
+ </ossec_config>
+ 
+ <ossec_config>
+@@ -305,4 +304,8 @@
+     <location>/var/ossec/logs/active-responses.log</location>
+   </localfile>
+ 
++  <localfile>
++    <log_format>json</log_format>
++    <location>/var/log/suricata/eve.json</location>
++  </localfile>
+ </ossec_config>
+diff --git a/single-node/docker-compose.yml b/single-node/docker-compose.yml
+index 799c027a..e2aec5c7 100644
+--- a/single-node/docker-compose.yml
++++ b/single-node/docker-compose.yml
+@@ -1,5 +1,4 @@
+ # Wazuh App Copyright (C) 2017, Wazuh Inc. (License GPLv2)
+-version: '3.7'
+ 
+ services:
+   wazuh.manager:
+@@ -44,7 +43,7 @@ services:
+       - ./config/wazuh_indexer_ssl_certs/wazuh.manager.pem:/etc/ssl/filebeat.pem
+       - ./config/wazuh_indexer_ssl_certs/wazuh.manager-key.pem:/etc/ssl/filebeat.key
+       - ./config/wazuh_cluster/wazuh_manager.conf:/wazuh-config-mount/etc/ossec.conf
+-
++      - /var/log/suricata:/var/log/suricata:ro
+   wazuh.indexer:
+     image: wazuh/wazuh-indexer:4.9.0
+     hostname: wazuh.indexer

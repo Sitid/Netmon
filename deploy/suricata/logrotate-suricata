@@ -1,0 +1,18 @@
+# /etc/logrotate.d/suricata (reemplaza el del paquete; respaldo en /opt/netmon/backups/2026-09-29-suricata-logrotate/)
+# Suricata mira la placa SPAN desde el 28/09: eve.json crece ~20 GB/día. Rotación
+# cada hora (timer netmon-suricata-logrotate) o al pasar 2 GB; 168 archivos (~7 días)
+# comprimidos (suricata.log, el log del motor, no se reabre con HUP: queda afuera). Sin copytruncate (copiaría GB): se renombra y Suricata reabre con HUP;
+# Wazuh (que monta /var/log/suricata) sigue el archivo nuevo por nombre.
+/var/log/suricata/eve.json /var/log/suricata/fast.log /var/log/suricata/stats.log {
+    hourly
+    maxsize 2G
+    rotate 168
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        /bin/kill -HUP $(cat /run/suricata.pid) 2>/dev/null || true
+    endscript
+}

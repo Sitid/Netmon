@@ -1,0 +1,8 @@
+[Unit]
+Description=netmon - actualización de feeds (blocklist FireHOL + GeoIP DB-IP)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/netmon/tools/update_feeds.sh

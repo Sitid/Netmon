@@ -1,0 +1,12 @@
+# Reporte de la semana anterior, todos los lunes 07:00 (hora local del server).
+# Los archivos quedan en /opt/netmon/reports/. Habilitar con:
+#   systemctl enable --now netmon-report.timer
+[Unit]
+Description=netmon - timer de reporte semanal
+
+[Timer]
+OnCalendar=Mon *-*-* 07:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

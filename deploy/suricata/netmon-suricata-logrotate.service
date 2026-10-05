@@ -1,0 +1,8 @@
+[Unit]
+Description=netmon - rotación de logs de Suricata (cada hora)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/logrotate --state /var/lib/logrotate/suricata.status /etc/logrotate.d/suricata
+Nice=10
+IOSchedulingClass=idle
