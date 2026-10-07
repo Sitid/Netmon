@@ -1,11 +1,15 @@
 # netmon — Monitoreo de red para PyME (~100 puestos, AD)
 
+> **EN:** Passive network monitoring for a ~100-seat Active Directory network. Traffic is captured from a switch SPAN port with ntopng/nDPI (L7 classification by TLS SNI and DNS, no payload inspection) and served through a FastAPI + WebSocket backend with tiered history in PostgreSQL, per-user attribution via AD, configurable alerting, PDF/CSV reports and a kiosk mode. The `deploy/` folder adds a Wazuh + Suricata + Grafana SOC stack. Docs are in Spanish.
+
+![Dashboard de netmon: estado de red, ancho de banda, consumo y alertas](docs/img/dashboard.png)
+
 Sistema de monitoreo de tráfico sobre **port mirroring (SPAN)** pensado para
 una red con Active Directory, switches HPE/Aruba + Ruckus y firewall
 WatchGuard. Captura con **ntopng/nDPI** (clasificación por SNI/DNS, sin
 inspección de contenido) y construye encima un dashboard propio en tiempo
-real con histórico en PostgreSQL, integración AD y reportes gerenciales. 
-   > **EN:** Passive network monitoring for a ~100-seat Active Directory network. Traffic is captured from a switch SPAN port with ntopng/nDPI (L7 classification by TLS SNI and DNS, no payload inspection) and served through a FastAPI + WebSocket backend with tiered history in PostgreSQL, per-user attribution via AD, configurable alerting, PDF/CSV reports and a kiosk mode. The `deploy/` folder adds a Wazuh + Suricata + Grafana SOC stack. Docs are in Spanish.
+real con histórico en PostgreSQL, integración AD y reportes gerenciales.
+
 ## Funcionalidades
 
 - **SPA estilo NOC**: sidebar con 6 secciones (Resumen, Consumo por IP,
@@ -98,3 +102,14 @@ Dashboard: `http://servidor:8080` · Kiosco: `http://servidor:8080/kiosk?token=.
 | `netmon-api` | REST + WebSocket + SPA (puerto 8080) |
 | `netmon-report.timer` | CSV+PDF semanal en `/opt/netmon/reports` |
 | `netmon-feeds.timer` | actualiza blocklist FireHOL (semanal) y GeoIP DB-IP (mensual) |
+
+## Stack SOC (`deploy/`)
+
+Sobre el mismo servidor corre un SOC liviano: **Suricata** como IDS sobre el
+mismo puerto espejo y un agente **Wazuh** en el controlador de dominio (solo
+lectura) alimentan un **Wazuh 4.9** en Docker. **Grafana 11.2** lee el indexer
+y presenta un tablero de triage por nivel de severidad. Configuración y
+procedimientos en [`deploy/wazuh`](deploy/wazuh/README.md) y
+[`deploy/grafana`](deploy/grafana/README.md).
+
+![Tablero de triage de alertas del SOC en Grafana](docs/img/soc-triage.png)
