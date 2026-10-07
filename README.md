@@ -4,7 +4,13 @@ Sistema de monitoreo de tráfico sobre **port mirroring (SPAN)** pensado para
 una red con Active Directory, switches HPE/Aruba + Ruckus y firewall
 WatchGuard. Captura con **ntopng/nDPI** (clasificación por SNI/DNS, sin
 inspección de contenido) y construye encima un dashboard propio en tiempo
-real con histórico en PostgreSQL, integración AD y reportes gerenciales.
+real con histórico en PostgreSQL, integración AD y reportes gerenciales. 
+
+**EN:** Passive network monitoring for a ~100-seat Active Directory network. Traffic is captured
++> from a switch SPAN port with ntopng/nDPI (L7 classification by TLS SNI and DNS, no payload
++> inspection) and served through a FastAPI + WebSocket backend with tiered history in PostgreSQL,
++> per-user attribution via AD, configurable alerting, PDF/CSV reports and a kiosk mode. The `deploy/`
++> folder adds a Wazuh + Suricata + Grafana SOC stack. Docs are in Spanish.
 
 ## Funcionalidades
 
